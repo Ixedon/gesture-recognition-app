@@ -12,6 +12,7 @@ import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
@@ -99,6 +100,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private   void putLetter(char letter)
+    {
+       TextView textView = (TextView) findViewById(R.id.textView);
+       String oldText = (String) textView.getText();
+       textView.setText(oldText + letter);
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK)
@@ -120,4 +129,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+
+
+
 }
+
+
+
