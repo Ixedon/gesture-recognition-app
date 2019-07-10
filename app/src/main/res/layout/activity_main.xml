@@ -52,14 +52,29 @@
         android:text="Classify" />
 
 
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="148dp"
+        android:layout_marginLeft="148dp"
+        android:layout_marginTop="453dp"
+        android:onClick="speak"
+        android:text="Speak" />
+
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="41dp"
-        android:layout_marginBottom="54dp"
-        android:layout_toEndOf="@+id/button" />
+        android:layout_marginStart="3dp"
+        android:layout_marginBottom="68dp"
+        android:layout_toEndOf="@+id/button"
+        android:text="Hello world" />
 
 </RelativeLayout>
 

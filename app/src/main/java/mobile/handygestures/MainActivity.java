@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
 
     private ImageClassifier classifier;
+    private TextToSpeech t1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,18 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e("my", "Failed to initialize an image classifier.", e);
         }
+
+
+
+        t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.US);
+                    // t1.setPitch(1.0f);
+                }
+            }
+        });
 
     }
 
@@ -71,20 +86,6 @@ public class MainActivity extends AppCompatActivity {
         Log.e("my", "\n" + textToShow.toString());
         Toast.makeText(this, textToShow.toString(), Toast.LENGTH_SHORT).show();
 
-//        if (textToShow.toString().indexOf(":") != -1) {
-//            String token = textToShow.toString().substring(0, textToShow.toString().indexOf(":"));
-//            Activity activity = MainActivity.this;
-//            activity.runOnUiThread(
-//                    new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            highLightDirectionButton(token);
-//                        }
-//                    });
-//        }
-//
-//        showToast(textToShow);
-//        Log.e("text", textToShow.toString());
     }
 
 
@@ -100,13 +101,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private   void putLetter(char letter)
+    private  void putLetter (char letter)
     {
        TextView textView = (TextView) findViewById(R.id.textView);
-       String oldText = (String) textView.getText();
+       String oldText = textView.getText().toString();
        textView.setText(oldText + letter);
     }
 
+
+
+    public  void speak (View View)
+    {
+        TextView textView = (TextView) findViewById(R.id.textView);
+        String toSpeak = textView.getText().toString();
+        Toast.makeText(getApplicationContext(), toSpeak,Toast.LENGTH_SHORT).show();
+        t1.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

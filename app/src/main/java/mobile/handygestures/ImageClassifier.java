@@ -106,7 +106,7 @@ public abstract class ImageClassifier {
 
     /** Classifies a frame from the preview stream. */
     void classifyFrame(Bitmap bitmap, SpannableStringBuilder builder) {
-        printTopKLabels(builder);
+
 
         if (tflite == null) {
             Log.e(TAG, "Image classifier has not been initialized; Skipped.");
@@ -120,13 +120,15 @@ public abstract class ImageClassifier {
         Log.d(TAG, "Timecost to run model inference: " + Long.toString(endTime - startTime));
 
         // Smooth the results across frames.
-        applyFilter();
+        //applyFilter();
 
         // Print the results.
         long duration = endTime - startTime;
         SpannableString span = new SpannableString(duration + " ms");
         span.setSpan(new ForegroundColorSpan(android.graphics.Color.LTGRAY), 0, span.length(), 0);
         builder.append(span);
+
+        printTopKLabels(builder);
     }
 
     void applyFilter() {
