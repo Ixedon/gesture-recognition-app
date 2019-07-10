@@ -59,10 +59,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="148dp"
-        android:layout_marginLeft="148dp"
-        android:layout_marginTop="453dp"
-        android:onClick="speak"
+        android:layout_marginStart="146dp"
+        android:layout_marginLeft="146dp"
+        android:layout_marginTop="411dp"
+        android:onClick="speakButton"
         android:text="Speak" />
 
 
@@ -71,10 +71,37 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="3dp"
-        android:layout_marginBottom="68dp"
-        android:layout_toEndOf="@+id/button"
-        android:text="Hello world" />
+        android:layout_marginStart="39dp"
+        android:layout_marginBottom="8dp"
+        android:layout_toEndOf="@+id/button" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-97dp"
+        android:layout_marginBottom="22dp"
+        android:layout_toEndOf="@+id/button" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="178dp"
+        android:layout_marginBottom="24dp"
+        android:layout_toEndOf="@+id/button" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="35dp"
+        android:layout_marginBottom="481dp"
+        android:layout_toEndOf="@+id/button" />
+
 
 </RelativeLayout>
 
