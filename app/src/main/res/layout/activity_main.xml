@@ -8,20 +8,21 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="163dp"
+        android:layout_height="170dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="84dp" />
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="15dp" />
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="164dp"
+        android:layout_height="166dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="204dp" />
-        <!--android:src="@drawable/img"-->
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="8dp" />
 
 
     <Button
@@ -31,12 +32,27 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="62dp"
-        android:layout_marginLeft="62dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginStart="46dp"
+        android:layout_marginLeft="46dp"
+        android:layout_marginTop="212dp"
         android:onClick="pickImage"
+        android:tag="1"
         android:text="Pick" />
 
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="247dp"
+        android:layout_marginLeft="247dp"
+        android:layout_marginTop="214dp"
+        android:onClick="pickImage"
+        android:tag="2"
+        android:text="Pick" />
 
     <Button
         android:id="@+id/button2"
@@ -45,10 +61,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="243dp"
-        android:layout_marginLeft="243dp"
-        android:layout_marginTop="9dp"
-        android:onClick="classifyFrame"
+        android:layout_marginStart="137dp"
+        android:layout_marginLeft="137dp"
+        android:layout_marginTop="298dp"
+        android:onClick="classify"
         android:text="Classify" />
 
 
@@ -59,38 +75,30 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="146dp"
-        android:layout_marginLeft="146dp"
-        android:layout_marginTop="411dp"
+        android:layout_marginStart="145dp"
+        android:layout_marginLeft="145dp"
+        android:layout_marginTop="454dp"
         android:onClick="speakButton"
         android:text="Speak" />
 
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="361dp"
+        android:layout_height="69dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="39dp"
-        android:layout_marginBottom="8dp"
-        android:layout_toEndOf="@+id/button" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="-97dp"
-        android:layout_marginBottom="22dp"
-        android:layout_toEndOf="@+id/button" />
+        android:layout_marginStart="-92dp"
+        android:layout_marginBottom="69dp"
+        android:layout_toEndOf="@+id/button"
+        android:textAlignment="center" />
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+        android:layout_width="37dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="178dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginStart="142dp"
+        android:layout_marginBottom="220dp"
         android:layout_toEndOf="@+id/button" />
 
     <TextView
@@ -98,8 +106,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginBottom="481dp"
+        android:layout_marginStart="91dp"
+        android:layout_marginBottom="480dp"
+        android:layout_toEndOf="@+id/button" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="32dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-60dp"
+        android:layout_marginBottom="222dp"
         android:layout_toEndOf="@+id/button" />
 
 

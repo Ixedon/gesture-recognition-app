@@ -1,11 +1,15 @@
 package mobile.handygestures;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,16 +28,15 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1;
+    private static final int REQUEST_CODE2 = 2;
     private Bitmap bitmap;
-    private ImageView imageView;
+    private ImageView imageView, imageView2;
 
     private ImageClassifier classifier;
     private TextToSpeech t1;
     private char[] commandList;
+    private char [] idToLetter;
 
-    private int lastPrediction = -1;
-    private  int currentPrediction  = -1;
-    private boolean first = true;
 
     private TextView textView, textView1, textView2, textView3;
 
@@ -43,10 +46,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        imageView =  findViewById(R.id.imageView);
-        imageView.setImageResource(R.drawable.img);
 
-        textView =  findViewById(R.id.textView);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img);
+        bitmap = ThumbnailUtils.extractThumbnail(bitmap, 250, 250);
+
+
+        imageView =  findViewById(R.id.imageView);
+        imageView.setImageBitmap(bitmap);
+
+        imageView2 =  findViewById(R.id.imageView2);
+        imageView2.setImageBitmap(bitmap);
+
+
+
+        textView  =   findViewById(R.id.textView);
         textView1 =  findViewById(R.id.textView1);
         textView2 =  findViewById(R.id.textView2);
         textView3 =  findViewById(R.id.textView3);
@@ -72,50 +85,47 @@ public class MainActivity extends AppCompatActivity {
 
         commandList = new char[36];
         makeCommandList();
+        idToLetter = new char []{'A','B','C','L','T','W'};
 
     }
 
+    public void classify(View view)
+    {
+        int firstPrediction = classifyFrame(imageView);
+        int secondPrediction = classifyFrame(imageView2);
 
+        textView1.setText("" + idToLetter[firstPrediction]);// + " " +  Integer.toString(firstPrediction));
+        textView2.setText("" + idToLetter[secondPrediction]);// + " " +  Integer.toString(secondPrediction));
+
+        runCommand(firstPrediction, secondPrediction);
+
+
+    }
 
     /** Classifies a frame from the preview stream. */
-    public void classifyFrame(View View) {
+    private int classifyFrame(ImageView imgv) {
         if (classifier == null || MainActivity.this == null) {
             Log.e("my", "Uninitialized Classifier or invalid context.");
-            return;
+            return 0;
         }
         SpannableStringBuilder textToShow = new SpannableStringBuilder();
 
-        Bitmap originalBitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        Bitmap originalBitmap = ((BitmapDrawable) imgv.getDrawable()).getBitmap();
 
         Bitmap bitmap = ThumbnailUtils.extractThumbnail(originalBitmap, 224, 224);
 
-        lastPrediction = currentPrediction;
-
-        // Bitmap bitmap = textureView.getBitmap(classifier.getImageSizeX(),
-        // classifier.getImageSizeY());
 
         classifier.classifyFrame(bitmap, textToShow);
         bitmap.recycle();
 
-        //Log.e("my", "\n" + textToShow.toString());
-        Toast.makeText(this, textToShow.toString(), Toast.LENGTH_SHORT).show();
+        Log.e("my", "\n" + textToShow.toString());
+        //Toast.makeText(this, textToShow.toString(), Toast.LENGTH_SHORT).show();
 
-        currentPrediction = getPredictionID(textToShow.toString().charAt(0));
 
-        if (!first)
-        {
-            textView3.setText("2");
-            runCommand(lastPrediction, currentPrediction);
-            first = true;
-        }
-        else
-        {
-            textView3.setText("1");
-            first = false;
-        }
 
-        textView1.setText(Integer.toString(lastPrediction));
-        textView2.setText(Integer.toString(currentPrediction));
+         return getPredictionID(textToShow.toString().charAt(0));
+
+
 
     }
 
@@ -125,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         {
             char command = getCommand(a, b);
             Log.e("my", "\ncomm: " + command);
+            vibrate();
             executeCommand(command);
         }
     }
@@ -140,21 +151,7 @@ public class MainActivity extends AppCompatActivity {
         return 0;
     }
 
-    public void pickImage(View View) {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, REQUEST_CODE);
 
-    }
-
-
-    private  void putLetter (char letter)
-    {
-       String oldText = textView.getText().toString();
-       textView.setText(oldText + letter);
-    }
 
     private  void makeCommandList()
     {
@@ -201,9 +198,50 @@ public class MainActivity extends AppCompatActivity {
         t1.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
     }
 
+
+
+    public void pickImage(View view) {
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+
+        String name = view.getTag().toString();
+        Log.e("my", "cos" + name);
+        if (Integer.parseInt(name) == 1) startActivityForResult(intent, REQUEST_CODE);
+        if (Integer.parseInt(name) == 2) startActivityForResult(intent, REQUEST_CODE2);
+
+
+    }
+
+
+
+    private  void vibrate()
+    {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            v.vibrate(150);
+        }
+    }
+
+
+    private  void putLetter (char letter)
+    {
+        String oldText = textView.getText().toString();
+        textView.setText(oldText + letter);
+    }
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK)
+        if ((requestCode == REQUEST_CODE || requestCode == REQUEST_CODE2) && resultCode == Activity.RESULT_OK)
             try {
                 // We need to recyle unused bitmaps
                 if (bitmap != null) {
@@ -211,8 +249,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 InputStream stream = getContentResolver().openInputStream(data.getData());
                 bitmap = BitmapFactory.decodeStream(stream);
+                Bitmap bitmap2 = ThumbnailUtils.extractThumbnail(bitmap, 250, 250);
                 stream.close();
-                imageView.setImageBitmap(bitmap);
+
+                if (requestCode == REQUEST_CODE )  {Log.e("my", "first");  imageView.setImageBitmap(bitmap2);}
+                if (requestCode == REQUEST_CODE2 ) {Log.e("my", "sec"); imageView2.setImageBitmap(bitmap2);}
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
