@@ -1,27 +1,40 @@
 package mobile.handygestures;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.util.Log;
-import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
-
+import android.widget.ImageView;
 
 public class Preview extends AppCompatActivity {
 
     private Camera mCamera;
     private CameraPreview mPreview;
+    private Bitmap bitmap;
+    private ImageView imageView;
 
-    //SurfaceView preview;
-    //RelativeLayout overlay;
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            int a = 0;
+            Log.e ("my", "errr");
+           // bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+           // imageView.setImageBitmap(bitmap);
+            mCamera.startPreview();
+        }
+    };
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,6 +43,7 @@ public class Preview extends AppCompatActivity {
 //        requestWindowFeature(Window.FEATURE_NO_TITLE);
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_preview);
+        imageView = findViewById(R.id.imageView);
 
         if (checkCameraHardware(this)) {
             // Create an instance of Camera
@@ -43,30 +57,27 @@ public class Preview extends AppCompatActivity {
         }
         // Create our Preview view and set it as the content of our activity.
         mPreview = new CameraPreview(this, mCamera);
-        //SurfaceView preview = (SurfaceView) findViewById(R.id.camera_preview);
-        //overlay = (RelativeLayout) findViewById(R.id.overlay);
 
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
 
+        // Add a listener to the Capture button
+        Button captureButton = (Button) findViewById(R.id.button_capture);
+        captureButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // get an image from the camera
+                        mCamera.takePicture(null, null, mPicture);
+                    }
+                }
+        );
+
+
+
+
     }
-//
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        super.onWindowFocusChanged(hasFocus);
-//        if (preview != null)
-//        {
-//            // Get the preview size
-//            int previewWidth = preview.getMeasuredWidth(),
-//                    previewHeight = preview.getMeasuredHeight();
-//
-//            // Set the height of the overlay so that it makes the preview a square
-//            RelativeLayout.LayoutParams overlayParams = (RelativeLayout.LayoutParams) overlay.getLayoutParams();
-//            overlayParams.height = previewHeight - previewWidth;
-//            overlay.setLayoutParams(overlayParams);
-//        }
-//
-//    }
+
 
     private boolean checkCameraHardware(Context context) {
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
