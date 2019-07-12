@@ -1,5 +1,6 @@
-package mobile.handygestures;
 
+
+package mobile.handygestures;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+
+public class Gallery extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1;
     private static final int REQUEST_CODE2 = 2;
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_gallery);
 
 
 
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             // create either a new ImageClassifierQuantizedMobileNet or an ImageClassifierFloatInception
             //      classifier = new ImageClassifierQuantizedMobileNet(getActivity());
-            classifier = new ImageClassifierFloatInception(MainActivity.this);
+            classifier = new ImageClassifierFloatInception(Gallery.this);
         } catch (IOException e) {
             Log.e("my", "Failed to initialize an image classifier.", e);
         }
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Classifies a frame from the preview stream. */
     private int classifyFrame(ImageView imgv) {
-        if (classifier == null || MainActivity.this == null) {
+        if (classifier == null || Gallery.this == null) {
             Log.e("my", "Uninitialized Classifier or invalid context.");
             return 0;
         }
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-         return getPredictionID(textToShow.toString().charAt(0));
+        return getPredictionID(textToShow.toString().charAt(0));
 
 
 
@@ -175,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
     private void executeCommand(char a)
     {
 
-       String text = textView.getText().toString();
+        String text = textView.getText().toString();
 
         if (a == '^' && text.length() > 0)
             textView.setText(text.substring(0, text.length() - 1));
