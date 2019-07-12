@@ -3,6 +3,9 @@
     package="mobile.handygestures">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" />
+
 
     <application
         android:allowBackup="true"
@@ -20,7 +23,8 @@
         </activity>
         <activity android:name=".Gallery" />
         <activity android:name=".Help" />
-        <activity android:name=".Preview"></activity>
+        <activity android:name=".Preview" android:screenOrientation="portrait">
+            ></activity>
     </application>
 
 </manifest>

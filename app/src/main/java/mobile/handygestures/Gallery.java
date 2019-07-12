@@ -4,13 +4,18 @@ package mobile.handygestures;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.ExifInterface;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +43,7 @@ public class Gallery extends AppCompatActivity {
     private ImageClassifier classifier;
     private TextToSpeech t1;
     private char[] commandList;
-    private char [] idToLetter;
+    private char[] idToLetter;
 
 
     private TextView textView, textView1, textView2, textView3;
@@ -48,23 +54,21 @@ public class Gallery extends AppCompatActivity {
         setContentView(R.layout.activity_gallery);
 
 
-
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img);
         bitmap = ThumbnailUtils.extractThumbnail(bitmap, 250, 250);
 
 
-        imageView =  findViewById(R.id.imageView);
+        imageView = findViewById(R.id.imageView);
         imageView.setImageBitmap(bitmap);
 
-        imageView2 =  findViewById(R.id.imageView2);
+        imageView2 = findViewById(R.id.imageView2);
         imageView2.setImageBitmap(bitmap);
 
 
-
-        textView  =   findViewById(R.id.textView);
-        textView1 =  findViewById(R.id.textView1);
-        textView2 =  findViewById(R.id.textView2);
-        textView3 =  findViewById(R.id.textView3);
+        textView = findViewById(R.id.textView);
+        textView1 = findViewById(R.id.textView1);
+        textView2 = findViewById(R.id.textView2);
+        textView3 = findViewById(R.id.textView3);
 
         try {
             // create either a new ImageClassifierQuantizedMobileNet or an ImageClassifierFloatInception
@@ -78,7 +82,7 @@ public class Gallery extends AppCompatActivity {
         t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
+                if (status != TextToSpeech.ERROR) {
                     t1.setLanguage(Locale.US);
                     // t1.setPitch(1.0f);
                 }
@@ -87,12 +91,11 @@ public class Gallery extends AppCompatActivity {
 
         commandList = new char[36];
         makeCommandList();
-        idToLetter = new char []{'A','B','C','L','T','W'};
+        idToLetter = new char[]{'A', 'B', 'C', 'L', 'T', 'W'};
 
     }
 
-    public void classify(View view)
-    {
+    public void classify(View view) {
         int firstPrediction = classifyFrame(imageView);
         int secondPrediction = classifyFrame(imageView2);
 
@@ -104,7 +107,9 @@ public class Gallery extends AppCompatActivity {
 
     }
 
-    /** Classifies a frame from the preview stream. */
+    /**
+     * Classifies a frame from the preview stream.
+     */
     private int classifyFrame(ImageView imgv) {
         if (classifier == null || Gallery.this == null) {
             Log.e("my", "Uninitialized Classifier or invalid context.");
@@ -124,17 +129,13 @@ public class Gallery extends AppCompatActivity {
         //Toast.makeText(this, textToShow.toString(), Toast.LENGTH_SHORT).show();
 
 
-
         return getPredictionID(textToShow.toString().charAt(0));
-
 
 
     }
 
-    private void runCommand(int a, int b)
-    {
-        if (a >= 0 && b>= 0)
-        {
+    private void runCommand(int a, int b) {
+        if (a >= 0 && b >= 0) {
             char command = getCommand(a, b);
             Log.e("my", "\ncomm: " + command);
             vibrate();
@@ -142,8 +143,7 @@ public class Gallery extends AppCompatActivity {
         }
     }
 
-    private int getPredictionID(char c)
-    {
+    private int getPredictionID(char c) {
         if (c == 'A') return 0;
         if (c == 'B') return 1;
         if (c == 'C') return 2;
@@ -154,28 +154,24 @@ public class Gallery extends AppCompatActivity {
     }
 
 
-
-    private  void makeCommandList()
-    {
+    private void makeCommandList() {
         int indx = 0;
-        for (int i=0;i<26;i++) commandList[indx++] = (char) (i + 65);
-        for (int i=0;i<4;i++) commandList[indx++] = '#';
-        commandList [indx++] = ' ';
-        commandList [indx++] = '^';  // backspace
-        commandList [indx++] = '%';  // clear
-        commandList [indx++] = '@';  // speak
-        for (int i=0;i<2;i++) commandList[indx++] = '#';
+        for (int i = 0; i < 26; i++) commandList[indx++] = (char) (i + 65);
+        for (int i = 0; i < 4; i++) commandList[indx++] = '#';
+        commandList[indx++] = ' ';
+        commandList[indx++] = '^';  // backspace
+        commandList[indx++] = '%';  // clear
+        commandList[indx++] = '@';  // speak
+        for (int i = 0; i < 2; i++) commandList[indx++] = '#';
     }
 
 
-    private char getCommand(int a, int b)
-    {
-        return commandList [a*6 + b];
+    private char getCommand(int a, int b) {
+        return commandList[a * 6 + b];
     }
 
 
-    private void executeCommand(char a)
-    {
+    private void executeCommand(char a) {
 
         String text = textView.getText().toString();
 
@@ -185,21 +181,18 @@ public class Gallery extends AppCompatActivity {
             textView.setText("");
         else if (a == '@')
             speak(text);
-        else  if (a != '#')
+        else if (a != '#')
             putLetter(a);
     }
 
-    public void speakButton(View view)
-    {
+    public void speakButton(View view) {
         speak(textView.getText().toString());
     }
 
-    private void speak (String toSpeak)
-    {
-        Toast.makeText(getApplicationContext(), toSpeak,Toast.LENGTH_SHORT).show();
+    private void speak(String toSpeak) {
+        Toast.makeText(getApplicationContext(), toSpeak, Toast.LENGTH_SHORT).show();
         t1.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
     }
-
 
 
     public void pickImage(View view) {
@@ -219,9 +212,7 @@ public class Gallery extends AppCompatActivity {
     }
 
 
-
-    private  void vibrate()
-    {
+    private void vibrate() {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 500 milliseconds
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -233,12 +224,10 @@ public class Gallery extends AppCompatActivity {
     }
 
 
-    private  void putLetter (char letter)
-    {
+    private void putLetter(char letter) {
         String oldText = textView.getText().toString();
         textView.setText(oldText + letter);
     }
-
 
 
     @Override
@@ -265,8 +254,14 @@ public class Gallery extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-}
 
+    public static Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+}
 
 /*
 Sign tree (# is inactive):
