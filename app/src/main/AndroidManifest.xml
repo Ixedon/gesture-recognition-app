@@ -24,8 +24,7 @@
         </activity>
         <activity android:name=".Gallery" />
         <activity android:name=".Help" />
-        <activity android:name=".Preview" android:screenOrientation="portrait">
-            ></activity>
+        <activity android:name=".Preview" android:screenOrientation="portrait" />
     </application>
 
 </manifest>
