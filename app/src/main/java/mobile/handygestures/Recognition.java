@@ -137,14 +137,14 @@ public class Recognition {
     /**
      * Classifies a frame from the preview stream.
      */
-    public int classifyFrame(ImageView imgv) {
+    public int classifyFrame(Bitmap bit) {
         if (classifier == null || activity == null) {
             Log.e("my", "Uninitialized Classifier or invalid context.");
             return 0;
         }
         SpannableStringBuilder textToShow = new SpannableStringBuilder();
 
-        Bitmap originalBitmap = ((BitmapDrawable) imgv.getDrawable()).getBitmap();
+        Bitmap originalBitmap = bit;
 
         Bitmap bitmap = ThumbnailUtils.extractThumbnail(originalBitmap, 224, 224);
 

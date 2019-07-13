@@ -2,7 +2,9 @@ package mobile.handygestures;
 
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -13,6 +15,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -33,8 +36,11 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
     private MenuItem mItemSwitchCamera = null;
 
     private Mat img;
-    private ImageView imageView;
+    private ImageView imageView, imageView2;
+    private TextView textView, textView1, textView2;
+    private Recognition recognition;
 
+    private int firstPrediction, secondPrediction;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -76,23 +82,27 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
         imageView  = findViewById(R.id.imageView5);
         imageView.setImageResource(R.drawable.img);
-    }
 
+        imageView2  = findViewById(R.id.imageView4);
+        imageView2.setImageResource(R.drawable.img);
+
+        textView = findViewById(R.id.textView5);
+        textView1 = findViewById(R.id.textView6);
+        textView2 = findViewById(R.id.textView7);
+
+        recognition = new Recognition(Preview.this, textView);
+    }
 
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat tmpImg = inputFrame.rgba();
         Core.flip(tmpImg, tmpImg, 1);
-
         img = tmpImg;
-
         return img;
     }
 
-
-    public void showFrame(View view)
+    private void setToBitmap(Mat tmpImg, ImageView imgv)
     {
-        Mat tmpImg = img;
         Core.rotate(tmpImg, tmpImg, Core.ROTATE_90_CLOCKWISE); //ROTATE_180 or ROTATE_90_
         Bitmap bmp = null;
         try {
@@ -102,7 +112,39 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
         catch (CvException e){Log.d("Exception",e.getMessage());}
 
         bmp = ThumbnailUtils.extractThumbnail(bmp, 100, 100);
-        imageView.setImageBitmap(bmp);
+
+        if (imgv != null) imgv.setImageBitmap(bmp);
+    }
+
+    public void showFrame(View view)
+    {
+
+
+        classifyFirst();
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                classifySecond();
+            }
+        }, 2000);
+
+
+    }
+
+    private void classifyFirst() {
+        setToBitmap(img, imageView);
+        firstPrediction = recognition.classifyFrame(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+        textView1.setText("" + recognition.idToLetter[firstPrediction]);
+    }
+
+    private void classifySecond() {
+        setToBitmap(img, imageView2);
+        secondPrediction = recognition.classifyFrame(((BitmapDrawable) imageView2.getDrawable()).getBitmap());
+        Log.e("my", "f " + Integer.toString(firstPrediction) +" s " +  Integer.toString(secondPrediction));
+        textView2.setText("" + recognition.idToLetter[secondPrediction]);
+        recognition.runCommand(firstPrediction, secondPrediction);
 
 
 

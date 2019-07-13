@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.ThumbnailUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -62,8 +63,8 @@ public class Gallery extends AppCompatActivity {
 
 
     public void classify(View view) {
-        int firstPrediction = recognition.classifyFrame(imageView);
-        int secondPrediction = recognition.classifyFrame(imageView2);
+        int firstPrediction = recognition.classifyFrame(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+        int secondPrediction = recognition.classifyFrame(((BitmapDrawable) imageView2.getDrawable()).getBitmap());
 
         textView1.setText("" + recognition.idToLetter[firstPrediction]);// + " " +  Integer.toString(firstPrediction));
         textView2.setText("" + recognition.idToLetter[secondPrediction]);// + " " +  Integer.toString(secondPrediction));
