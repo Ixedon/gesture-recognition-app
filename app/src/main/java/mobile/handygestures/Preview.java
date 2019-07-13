@@ -22,7 +22,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvException;
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
+
 
 public class Preview extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -103,6 +103,10 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
         bmp = ThumbnailUtils.extractThumbnail(bmp, 100, 100);
         imageView.setImageBitmap(bmp);
+
+
+
+
     }
 
 
