@@ -34,6 +34,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
     private CameraBridgeViewBase mOpenCvCameraView;
     private boolean mIsJavaCamera = true;
     private MenuItem mItemSwitchCamera = null;
+    private int mCameraId = 1;
 
     private Mat img;
     private ImageView imageView, imageView2;
@@ -78,7 +79,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
         mOpenCvCameraView.setCvCameraViewListener(this);
 
-        mOpenCvCameraView.setCameraIndex(1);
+        mOpenCvCameraView.setCameraIndex(mCameraId);
 
         imageView  = findViewById(R.id.imageView5);
         imageView.setImageResource(R.drawable.img);
@@ -96,7 +97,8 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat tmpImg = inputFrame.rgba();
-        Core.flip(tmpImg, tmpImg, 1);
+
+        if (mCameraId == 1) Core.flip(tmpImg, tmpImg, 1);
         img = tmpImg;
         return img;
     }
@@ -151,6 +153,13 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
     }
 
+
+    public void swapCamera(View view) {
+        mCameraId = mCameraId^1; //bitwise not operation to flip 1 to 0 and vice versa
+        mOpenCvCameraView.disableView();
+        mOpenCvCameraView.setCameraIndex(mCameraId);
+        mOpenCvCameraView.enableView();
+    }
 
     @Override
     public void onPause()
