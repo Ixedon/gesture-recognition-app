@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -71,7 +70,7 @@ public class AutoDetection implements Runnable {
         }
     }
 
-    private int oneLetter(int num, final ImageView imgv) {
+    private int oneSign(int num, final ImageView imgv) {
 
         while (true) {
             if (num == 2 && System.currentTimeMillis() - startTime > 5000) return -1;
@@ -79,10 +78,8 @@ public class AutoDetection implements Runnable {
 
 
             pred1 = classify();
-            if (probs.size() == 0) Log.e ("my", "No");
             if (pred1 != -1 && detect()) {
-                Log.e("my", "first");
-                //resetView();
+
 
                 sleep(300);
 
@@ -91,9 +88,7 @@ public class AutoDetection implements Runnable {
                 pred2 = classify();
 
                 if (pred2 != -1 && detect()) {
-                    Log.e("my", "tuuuuuuu");
-                    //resetView();
-                    Log.e("my", "is SECOND " + Integer.toString(compareLabels()));
+
                     if (compareLabels() < 500 && pred1 == pred2) {
                         handler.post(new Runnable() {
                             public void run() {
@@ -118,11 +113,11 @@ public class AutoDetection implements Runnable {
 
         while (true) {
             txtv = textView1;
-            prediction1 = oneLetter(1, imageView);
+            prediction1 = oneSign(1, imageView);
             sleep(250);
             txtv = textView2;
             startTime = System.currentTimeMillis();
-            prediction2 = oneLetter(2, imageView2);
+            prediction2 = oneSign(2, imageView2);
             if (prediction2 == -1) {
                 resetInterface();
                 continue;
@@ -136,7 +131,6 @@ public class AutoDetection implements Runnable {
             });
             sleep(300);
             resetInterface();
-           // resetView();
 
         }
     }
@@ -145,8 +139,8 @@ public class AutoDetection implements Runnable {
     private void resetInterface() {
         handler.post(new Runnable() {
             public void run() {
-                imageView.setImageResource(R.drawable.img);
-                imageView2.setImageResource(R.drawable.img);
+                imageView.setImageResource(R.drawable.logo);
+                imageView2.setImageResource(R.drawable.logo);
                 textView1.setText("");
                 textView2.setText("");
             }
@@ -154,25 +148,6 @@ public class AutoDetection implements Runnable {
 
     }
 
-    private void resetView()
-    {
-        //preview.mOpenCvCameraView.disableView();
-
-        handler.post(new Runnable() {
-            public void run() {
-                preview.mOpenCvCameraView.disableView();
-                preview.mOpenCvCameraView.enableView();
-//                preview.mOpenCvCameraView.setVisibility(SurfaceView.GONE);
-//                preview.mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-
-            }
-        });
-        img = preview.img;
-
-        //preview.mOpenCvCameraView.enableView();
-        //img = null;
-        //updateSortedLabels();
-    }
 
     private void sleep(int time)
     {
@@ -186,9 +161,8 @@ public class AutoDetection implements Runnable {
 
     private boolean detect()
     {
-//        Log.e ("my", "detect");
         if (probs == null || probs.size() <= 0) return false;
-        Log.e("my", "Best prob " + Float.toString(probs.get(probs.size() -1)));
+        //Log.e("my", "Best prob " + Float.toString(probs.get(probs.size() -1)));
         if(probs.get(probs.size() -1) > 0.6) return true;
         else return false;
     }
@@ -208,9 +182,6 @@ public class AutoDetection implements Runnable {
             prevProbs = new ArrayList<Float> (probs);
         }
 
-
-        //if (prediction ==-1) Log.e ("my", "waht?");
-        //Log.e("my", "predict");
         return prediction;
 
     }
@@ -256,13 +227,10 @@ public class AutoDetection implements Runnable {
         probs = new ArrayList<>();
 
         final int size = sortedLabels.size();
-        //Log.e ("my", Integer.toString(size));
         for (int i = 0; i < size; i++) {
             Map.Entry<String, Float> label = sortedLabels.poll();
             labels.add(label.getKey());
             probs.add(label.getValue());
-
-            //Log.e("my", label.getKey() + " : " + Float.toString(label.getValue()) + "\n");
         }
 
     }

@@ -34,11 +34,13 @@ public class Gallery extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Gets links to all the required components and classes
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
 
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
         bitmap = ThumbnailUtils.extractThumbnail(bitmap, 250, 250);
 
 
@@ -63,6 +65,7 @@ public class Gallery extends AppCompatActivity {
 
 
     public void classify(View view) {
+        // Gets the predictions for the images and runs the command through the Recognition class
         int firstPrediction = recognition.classifyFrame(((BitmapDrawable) imageView.getDrawable()).getBitmap());
         int secondPrediction = recognition.classifyFrame(((BitmapDrawable) imageView2.getDrawable()).getBitmap());
 
@@ -73,12 +76,14 @@ public class Gallery extends AppCompatActivity {
 
 
     }
-
+    //  Runs the speak method from the Recognition class
     public void speakButton(View view) {
         recognition.speak(textView.getText().toString());
     }
 
     public void pickImage(View view) {
+        // Allows the user pick an image from the gallery using the onActivityResult override.
+        // Uses the button tag and request codes to determine where to load the image
 
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -120,10 +125,5 @@ public class Gallery extends AppCompatActivity {
     }
 
 
-    public static Bitmap rotateBitmap(Bitmap bitmap, int degrees) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
 
 }
