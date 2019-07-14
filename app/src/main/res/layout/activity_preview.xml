@@ -53,10 +53,10 @@
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/imageView5"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="63dp"
-            android:layout_marginTop="34dp"
+            android:layout_marginStart="68dp"
+            android:layout_marginTop="6dp"
             android:onClick="showFrame"
-            android:text="Show" />
+            android:text="Analyze" />
 
         <TextView
             android:id="@+id/textView5"
@@ -64,8 +64,8 @@
             android:layout_height="48dp"
             android:layout_alignStart="@+id/button5"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="-52dp"
-            android:layout_marginBottom="32dp" />
+            android:layout_marginStart="4dp"
+            android:layout_marginBottom="27dp" />
 
         <TextView
             android:id="@+id/textView6"
@@ -73,8 +73,8 @@
             android:layout_height="29dp"
             android:layout_above="@+id/textView5"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="178dp"
-            android:layout_marginBottom="59dp" />
+            android:layout_marginEnd="162dp"
+            android:layout_marginBottom="106dp" />
 
         <TextView
             android:id="@+id/textView7"
@@ -82,8 +82,8 @@
             android:layout_height="29dp"
             android:layout_above="@+id/textView5"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="125dp"
-            android:layout_marginBottom="60dp" />
+            android:layout_marginEnd="112dp"
+            android:layout_marginBottom="106dp" />
 
         <Button
             android:id="@+id/button6"
@@ -96,6 +96,17 @@
             android:onClick="swapCamera"
             android:text="Switch"
             android:textSize="8sp" />
+
+        <Button
+            android:id="@+id/button7"
+            android:layout_width="98dp"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/imageView5"
+            android:layout_marginTop="66dp"
+            android:layout_marginEnd="75dp"
+            android:layout_toStartOf="@+id/textView6"
+            android:onClick="startAuto"
+            android:text="Auto \n start" />
     </RelativeLayout>
 
 </LinearLayout>

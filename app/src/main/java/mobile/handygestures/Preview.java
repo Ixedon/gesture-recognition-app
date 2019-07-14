@@ -15,6 +15,7 @@ import android.view.SurfaceView;
 
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -38,20 +39,21 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
     private static final String TAG = "my";
 
-    private CameraBridgeViewBase mOpenCvCameraView;
+    protected CameraBridgeViewBase mOpenCvCameraView;
     private boolean mIsJavaCamera = true;
     private MenuItem mItemSwitchCamera = null;
     private int mCameraId = 1;
 
-    private Mat img;
-    private ImageView imageView, imageView2;
-    private TextView textView, textView1, textView2;
-    private Recognition recognition;
+    protected Mat img;
+    protected ImageView imageView, imageView2;
+    protected TextView textView, textView1, textView2;
+    protected Recognition recognition;
 
     private int firstPrediction, secondPrediction;
+    protected boolean autoOn = false;
+    private Button analyzeButton;
 
-    private List<String> labels, prevLabels;
-    private List<Float> probs, prevProbs;
+    private AutoDetection autoDetect;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -91,197 +93,46 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
         mOpenCvCameraView.setCameraIndex(mCameraId);
 
-        imageView  = findViewById(R.id.imageView5);
+        imageView = findViewById(R.id.imageView5);
         imageView.setImageResource(R.drawable.img);
 
-        imageView2  = findViewById(R.id.imageView4);
+        imageView2 = findViewById(R.id.imageView4);
         imageView2.setImageResource(R.drawable.img);
 
         textView = findViewById(R.id.textView5);
         textView1 = findViewById(R.id.textView6);
         textView2 = findViewById(R.id.textView7);
 
+        analyzeButton = findViewById(R.id.button5);
+
         recognition = new Recognition(Preview.this, textView);
 
-        final Handler handler = new Handler();
-
-
-
-        new Thread(new Runnable() {
-
-            private Mat tmpImg;
-            private int pred1, pred2;
-            private int prediction1, prediction2;
-            private  TextView txtv;
-
-            private long startTime;
-
-            private int oneLetter(int num,final ImageView imgv ) {
-
-                while (true)
-                {
-                    if (num == 2 && System.currentTimeMillis() - startTime > 5000) return -1;
-                    sleep(400);
-
-                    pred1 = classify();
-                    if (detect()) {
-                        Log.e("my", "first");
-                        sleep(200);
-
-                        tmpImg = img;
-                        pred2 = classify();
-                        if (detect()) {
-                            Log.e(TAG, "is SECOND " + Integer.toString(compareLabels()));
-                            if (compareLabels() < 300 && pred1 == pred2) {
-                                handler.post(new Runnable() {
-                                    public void run() {
-                                        setToBitmap(tmpImg, imgv);
-                                        txtv.setText("" + recognition.idToLetter[pred1]);
-                                    }
-                                });
-
-
-                                recognition.vibrate(100);
-                                return pred1;
-                            }
-                        }
-                    }
-                }
-            }
-
-            private void resetInterface()
-            {
-                handler.post(new Runnable() {
-                    public void run() {
-                        imageView.setImageResource(R.drawable.img);
-                        imageView2.setImageResource(R.drawable.img);
-                        textView1.setText("");
-                        textView2.setText("");
-                    }
-                });
-
-            }
-
-            @Override
-            public void run() {
-
-                while (true)
-                {
-
-                    txtv = textView1;
-                    prediction1 = oneLetter(1,imageView);
-                    sleep(150);
-                    txtv = textView2;
-                    startTime = System.currentTimeMillis();
-                    prediction2 = oneLetter(2,imageView2);
-                    if (prediction2 == -1) {resetInterface(); continue;}
-
-                    handler.post(new Runnable() {
-                        public void run() {
-                            recognition.runCommand(prediction1, prediction2);
-                            sleep(150);
-
-                        }
-                    });
-
-                    resetInterface();
-
-
-                }
-            }
-        }).start();
     }
 
-    private void sleep(int time)
+
+
+    public void startAuto(View view)
     {
-        try {
-            Thread.sleep(time);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private boolean detect()
-    {
-        //Log.e ("my", "detect");
-        if (probs == null || probs.size() <= 0) return false;
-//        Log.e("my", "Best prob " + Float.toString(probs.get(probs.size() -1)));
-        if(probs.get(probs.size() -1) > 0.6) return true;
-        else return false;
-    }
-
-
-    private int classify() {
-        int prediction = 0;
-        if (img !=null && img.cols() > 0)
+        Button b = (Button) view;
+        if (autoOn)
         {
-            Bitmap bmp = getBitmapFromMat();
-           prediction = recognition.classifyFrame(bmp);
+            b.setText("Auto \n start");
+            analyzeButton.setVisibility(View.VISIBLE);
+            autoOn = false;
+            autoDetect.stop();
         }
-        if (labels != null)
+        else
         {
-            prevLabels = new ArrayList<String> (labels);
-            prevProbs = new ArrayList<Float> (probs);
-        }
-
-
-        updateSortedLabels();
-        //Log.e("my", "predict");
-        return prediction;
-
-    }
-
-    private int compareLabels()
-    {
-        float sum = 0;
-
-        final int size = prevLabels.size();
-        for (int i = 0; i < size; i++)
-        {
-            sum += Math.abs(prevProbs.get(i) - probs.get(i));
-            if (! prevLabels.get(i).equals(labels.get(i)) ) {sum += 1.0f;}
-        }
-
-        return  (int) (sum*100);
-
-    }
-
-    private Bitmap getBitmapFromMat()
-    {
-        Mat tmpImg = img;
-        Core.rotate(tmpImg, tmpImg, Core.ROTATE_90_CLOCKWISE); //ROTATE_180 or ROTATE_90_
-        Bitmap bmp = null;
-        try {
-            bmp = Bitmap.createBitmap(tmpImg.cols(), tmpImg.rows(), Bitmap.Config.ARGB_8888);
-            Utils.matToBitmap(tmpImg, bmp);
-        }
-        catch (CvException e){Log.d("Exception",e.getMessage());}
-
-        bmp = ThumbnailUtils.extractThumbnail(bmp, 100, 100);
-
-      return bmp;
-    }
-
-    private void updateSortedLabels()
-    {
-        PriorityQueue<Map.Entry<String, Float>> sortedLabels = recognition.getClassifier().getLabelsList();
-
-        if (sortedLabels == null) return;
-
-        labels = new ArrayList<>();
-        probs = new ArrayList<>();
-
-        final int size = sortedLabels.size();
-        //Log.e ("my", Integer.toString(size));
-        for (int i = 0; i < size; i++) {
-            Map.Entry<String, Float> label = sortedLabels.poll();
-            labels.add(label.getKey());
-            probs.add(label.getValue());
-
-            //Log.e("my", label.getKey() + " : " + Float.toString(label.getValue()) + "\n");
+            b.setText("Auto \n stop");
+            analyzeButton.setVisibility(View.GONE);
+            autoOn = true;
+            autoDetect = new AutoDetection(this);
+            autoDetect.begin();
         }
 
     }
+
+
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat tmpImg = inputFrame.rgba();
@@ -291,7 +142,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
         return img;
     }
 
-    private void setToBitmap(Mat tmpImg, ImageView imgv)
+    public void setToBitmap(Mat tmpImg, ImageView imgv)
     {
         Core.rotate(tmpImg, tmpImg, Core.ROTATE_90_CLOCKWISE); //ROTATE_180 or ROTATE_90_
         Bitmap bmp = null;
@@ -353,6 +204,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
     public void onPause()
     {
         super.onPause();
+        autoDetect.stop();
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
     }
@@ -372,6 +224,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
     public void onDestroy() {
         super.onDestroy();
+        autoDetect.stop();
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
     }
