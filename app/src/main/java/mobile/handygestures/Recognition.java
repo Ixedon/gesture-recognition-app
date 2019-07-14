@@ -60,14 +60,14 @@ public class Recognition {
     }
 
 
-    private void vibrate() {
+    public void vibrate(int time) {
         Vibrator v = (Vibrator) activity.getSystemService (Context.VIBRATOR_SERVICE);
         // Vibrate for 500 milliseconds
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+            v.vibrate(VibrationEffect.createOneShot(time, VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
             //deprecated in API 26
-            v.vibrate(150);
+            v.vibrate(time);
         }
     }
 
@@ -128,7 +128,7 @@ public class Recognition {
         if (a >= 0 && b >= 0) {
             char command = getCommand(a, b);
             Log.e("my", "\ncomm: " + command);
-            vibrate();
+            vibrate(150);
             executeCommand(command);
         }
     }
@@ -152,7 +152,7 @@ public class Recognition {
         classifier.classifyFrame(bitmap, textToShow);
         bitmap.recycle();
 
-        Log.e("my", "\n" + textToShow.toString());
+       // Log.e("my", "\n" + textToShow.toString());
         //Toast.makeText(this, textToShow.toString(), Toast.LENGTH_SHORT).show();
 
 
@@ -164,6 +164,8 @@ public class Recognition {
     private char getCommand(int a, int b) {
         return commandList[a * 6 + b];
     }
+
+    public ImageClassifier getClassifier() {return classifier;}
 }
 
 

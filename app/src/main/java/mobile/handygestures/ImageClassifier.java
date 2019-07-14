@@ -87,6 +87,7 @@ public abstract class ImageClassifier {
                             return (o1.getValue()).compareTo(o2.getValue());
                         }
                     });
+    private PriorityQueue<Map.Entry<String, Float>> sortedLabelsReturn;
 
     /** Initializes an {@code ImageClassifier}. */
     ImageClassifier(Activity activity) throws IOException {
@@ -214,6 +215,9 @@ public abstract class ImageClassifier {
         Log.d(TAG, "Timecost to put values into ByteBuffe`r: " + Long.toString(endTime - startTime));
     }
 
+
+
+
     /** Prints top-K labels, to be shown in UI as the results. */
     private void printTopKLabels(SpannableStringBuilder builder) {
         for (int i = 0; i < getNumLabels(); ++i) {
@@ -223,6 +227,8 @@ public abstract class ImageClassifier {
                 sortedLabels.poll();
             }
         }
+
+        sortedLabelsReturn = new PriorityQueue<>(sortedLabels);
 
         final int size = sortedLabels.size();
         for (int i = 0; i < size; i++) {
@@ -244,6 +250,14 @@ public abstract class ImageClassifier {
             span.setSpan(new ForegroundColorSpan(color), 0, span.length(), 0);
             builder.insert(0, span);
         }
+    }
+
+
+    ///////////////////////////////////////////
+
+    public PriorityQueue<Map.Entry<String, Float>> getLabelsList()
+    {
+        return sortedLabelsReturn;
     }
 
     /**

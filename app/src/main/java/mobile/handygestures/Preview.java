@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.text.format.Time;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.SurfaceView;
@@ -26,6 +27,12 @@ import org.opencv.core.Core;
 import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+
 
 public class Preview extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -42,6 +49,9 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
     private Recognition recognition;
 
     private int firstPrediction, secondPrediction;
+
+    private List<String> labels, prevLabels;
+    private List<Float> probs, prevProbs;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -92,8 +102,186 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
         textView2 = findViewById(R.id.textView7);
 
         recognition = new Recognition(Preview.this, textView);
+
+        final Handler handler = new Handler();
+
+
+
+        new Thread(new Runnable() {
+
+            private Mat tmpImg;
+            private int pred1, pred2;
+            private int prediction1, prediction2;
+            private  TextView txtv;
+
+            private long startTime;
+
+            private int oneLetter(int num,final ImageView imgv ) {
+
+                while (true)
+                {
+                    if (num == 2 && System.currentTimeMillis() - startTime > 5000) return -1;
+                    sleep(400);
+
+                    pred1 = classify();
+                    if (detect()) {
+                        Log.e("my", "first");
+                        sleep(200);
+
+                        tmpImg = img;
+                        pred2 = classify();
+                        if (detect()) {
+                            Log.e(TAG, "is SECOND " + Integer.toString(compareLabels()));
+                            if (compareLabels() < 300 && pred1 == pred2) {
+                                handler.post(new Runnable() {
+                                    public void run() {
+                                        setToBitmap(tmpImg, imgv);
+                                        txtv.setText("" + recognition.idToLetter[pred1]);
+                                    }
+                                });
+
+
+                                recognition.vibrate(100);
+                                return pred1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            private void resetInterface()
+            {
+                handler.post(new Runnable() {
+                    public void run() {
+                        imageView.setImageResource(R.drawable.img);
+                        imageView2.setImageResource(R.drawable.img);
+                        textView1.setText("");
+                        textView2.setText("");
+                    }
+                });
+
+            }
+
+            @Override
+            public void run() {
+
+                while (true)
+                {
+
+                    txtv = textView1;
+                    prediction1 = oneLetter(1,imageView);
+                    sleep(150);
+                    txtv = textView2;
+                    startTime = System.currentTimeMillis();
+                    prediction2 = oneLetter(2,imageView2);
+                    if (prediction2 == -1) {resetInterface(); continue;}
+
+                    handler.post(new Runnable() {
+                        public void run() {
+                            recognition.runCommand(prediction1, prediction2);
+                            sleep(150);
+
+                        }
+                    });
+
+                    resetInterface();
+
+
+                }
+            }
+        }).start();
     }
 
+    private void sleep(int time)
+    {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean detect()
+    {
+        //Log.e ("my", "detect");
+        if (probs == null || probs.size() <= 0) return false;
+//        Log.e("my", "Best prob " + Float.toString(probs.get(probs.size() -1)));
+        if(probs.get(probs.size() -1) > 0.6) return true;
+        else return false;
+    }
+
+
+    private int classify() {
+        int prediction = 0;
+        if (img !=null && img.cols() > 0)
+        {
+            Bitmap bmp = getBitmapFromMat();
+           prediction = recognition.classifyFrame(bmp);
+        }
+        if (labels != null)
+        {
+            prevLabels = new ArrayList<String> (labels);
+            prevProbs = new ArrayList<Float> (probs);
+        }
+
+
+        updateSortedLabels();
+        //Log.e("my", "predict");
+        return prediction;
+
+    }
+
+    private int compareLabels()
+    {
+        float sum = 0;
+
+        final int size = prevLabels.size();
+        for (int i = 0; i < size; i++)
+        {
+            sum += Math.abs(prevProbs.get(i) - probs.get(i));
+            if (! prevLabels.get(i).equals(labels.get(i)) ) {sum += 1.0f;}
+        }
+
+        return  (int) (sum*100);
+
+    }
+
+    private Bitmap getBitmapFromMat()
+    {
+        Mat tmpImg = img;
+        Core.rotate(tmpImg, tmpImg, Core.ROTATE_90_CLOCKWISE); //ROTATE_180 or ROTATE_90_
+        Bitmap bmp = null;
+        try {
+            bmp = Bitmap.createBitmap(tmpImg.cols(), tmpImg.rows(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(tmpImg, bmp);
+        }
+        catch (CvException e){Log.d("Exception",e.getMessage());}
+
+        bmp = ThumbnailUtils.extractThumbnail(bmp, 100, 100);
+
+      return bmp;
+    }
+
+    private void updateSortedLabels()
+    {
+        PriorityQueue<Map.Entry<String, Float>> sortedLabels = recognition.getClassifier().getLabelsList();
+
+        if (sortedLabels == null) return;
+
+        labels = new ArrayList<>();
+        probs = new ArrayList<>();
+
+        final int size = sortedLabels.size();
+        //Log.e ("my", Integer.toString(size));
+        for (int i = 0; i < size; i++) {
+            Map.Entry<String, Float> label = sortedLabels.poll();
+            labels.add(label.getKey());
+            probs.add(label.getValue());
+
+            //Log.e("my", label.getKey() + " : " + Float.toString(label.getValue()) + "\n");
+        }
+
+    }
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat tmpImg = inputFrame.rgba();
@@ -139,6 +327,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
         setToBitmap(img, imageView);
         firstPrediction = recognition.classifyFrame(((BitmapDrawable) imageView.getDrawable()).getBitmap());
         textView1.setText("" + recognition.idToLetter[firstPrediction]);
+        recognition.vibrate(100);
     }
 
     private void classifySecond() {
@@ -146,9 +335,8 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
         secondPrediction = recognition.classifyFrame(((BitmapDrawable) imageView2.getDrawable()).getBitmap());
         Log.e("my", "f " + Integer.toString(firstPrediction) +" s " +  Integer.toString(secondPrediction));
         textView2.setText("" + recognition.idToLetter[secondPrediction]);
+        recognition.vibrate(100);
         recognition.runCommand(firstPrediction, secondPrediction);
-
-
 
 
     }
