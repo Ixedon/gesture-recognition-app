@@ -21,7 +21,7 @@ import java.io.InputStream;
 
 
 public class Gallery extends AppCompatActivity {
-
+ // This is the gallery activity that handles recognition of symbols based on loaded images from the gallery.
     private static final int REQUEST_CODE = 1;
     private static final int REQUEST_CODE2 = 2;
     private Bitmap bitmap;

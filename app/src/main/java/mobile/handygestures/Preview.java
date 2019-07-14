@@ -36,7 +36,7 @@ import java.util.PriorityQueue;
 
 
 public class Preview extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
-
+ // This is the preview activity that handles recognition of symbols based on a camera stream.
     private static final String TAG = "my";
 
     protected CameraBridgeViewBase mOpenCvCameraView;
@@ -53,6 +53,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
     private AutoDetection autoDetect;
 
+    // Loads OpenCV
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -77,6 +78,8 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Sets up the preview and links to other objects
+
         Log.i(TAG, "called onCreate");
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -111,6 +114,9 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
     public void startAuto(View view)
     {
+        // Handles button to toggle automatic detection
+        // (renames the button to stop and hides the manual detection button)
+
         Button b = (Button) view;
         if (autoOn)
         {
@@ -133,15 +139,18 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        // Returns the frame image
+
         Mat tmpImg = inputFrame.rgba();
 
-        if (mCameraId == 1) Core.flip(tmpImg, tmpImg, 1);
+        if (mCameraId == 1) Core.flip(tmpImg, tmpImg, 1); //flip image mirror
         img = tmpImg;
         return img;
     }
 
     public void setToBitmap(Mat tmpImg, ImageView imgv)
     {
+        // Sets the Mat image to a bitmap (correctly rotated)
         Core.rotate(tmpImg, tmpImg, Core.ROTATE_90_CLOCKWISE); //ROTATE_180 or ROTATE_90_
         Bitmap bmp = null;
         try {
@@ -157,7 +166,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
     public void showFrame(View view)
     {
-
+        // Manual start of the detection (2s between signs)
 
         classifyFirst();
 
@@ -173,6 +182,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
     }
 
     private void classifyFirst() {
+        // Classify the first sign (use Recognition class) and set the first image view
         setToBitmap(img, imageView);
         firstPrediction = recognition.classifyFrame(((BitmapDrawable) imageView.getDrawable()).getBitmap());
         textView1.setText("" + recognition.idToLetter[firstPrediction]);
@@ -180,6 +190,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
     }
 
     private void classifySecond() {
+        // Classify the second sign, set the second image view and run the command
         setToBitmap(img, imageView2);
         secondPrediction = recognition.classifyFrame(((BitmapDrawable) imageView2.getDrawable()).getBitmap());
         Log.e("my", "f " + Integer.toString(firstPrediction) +" s " +  Integer.toString(secondPrediction));
@@ -192,6 +203,7 @@ public class Preview extends AppCompatActivity implements CameraBridgeViewBase.C
 
 
     public void swapCamera(View view) {
+        // Swaps the camera between front and back
         mCameraId = mCameraId^1;
         mOpenCvCameraView.disableView();
         mOpenCvCameraView.setCameraIndex(mCameraId);

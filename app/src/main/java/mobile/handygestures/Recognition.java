@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 public class Recognition {
-
+    // This class handles the recognition and execution of the commands based on a pair of images.
 
     private ImageClassifier classifier;
     private TextToSpeech t1;
@@ -61,6 +61,7 @@ public class Recognition {
 
 
     public void vibrate(int time) {
+        // Vibrates for a specific am mount of time
         Vibrator v = (Vibrator) activity.getSystemService (Context.VIBRATOR_SERVICE);
         // Vibrate for 500 milliseconds
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -73,12 +74,14 @@ public class Recognition {
 
 
     private void putLetter(char letter) {
+        // Adds a letter to the text view
         String oldText = textView.getText().toString();
         textView.setText(oldText + letter);
     }
 
 
     public void speak(String toSpeak) {
+        // Vocalizes the text in the text view
         Toast.makeText(activity.getApplicationContext(), toSpeak, Toast.LENGTH_SHORT).show();
         t1.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
     }
@@ -87,6 +90,7 @@ public class Recognition {
 
 
     private void executeCommand(char a) {
+        // Executes the command based on the char command
 
         String text = textView.getText().toString();
 
@@ -102,6 +106,7 @@ public class Recognition {
 
 
     private int getPredictionID(char c) {
+        // Maps letters to IDs
         if (c == 'A') return 0;
         if (c == 'B') return 1;
         if (c == 'C') return 2;
@@ -113,6 +118,7 @@ public class Recognition {
 
 
     private void makeCommandList() {
+        // Maps two prediction IDs to char command
         int indx = 0;
         for (int i = 0; i < 26; i++) commandList[indx++] = (char) (i + 65);
         for (int i = 0; i < 4; i++) commandList[indx++] = '#';
@@ -125,6 +131,7 @@ public class Recognition {
 
 
     public void runCommand(int a, int b) {
+        // Public start method of the command execution
         if (a >= 0 && b >= 0) {
             char command = getCommand(a, b);
             Log.e("my", "\ncomm: " + command);
@@ -134,10 +141,9 @@ public class Recognition {
     }
 
 
-    /**
-     * Classifies a frame from the preview stream.
-     */
+
     public int classifyFrame(Bitmap bit) {
+        // Extracts a thumbnail from the bitmap and runs the classifier on it
         if (classifier == null || activity == null) {
             Log.e("my", "Uninitialized Classifier or invalid context.");
             return 0;
@@ -160,7 +166,7 @@ public class Recognition {
 
 
     }
-
+    // Returns the char command from prediction IDs
     private char getCommand(int a, int b) {
         return commandList[a * 6 + b];
     }

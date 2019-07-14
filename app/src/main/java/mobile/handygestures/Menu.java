@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Button;
 
 public class Menu extends AppCompatActivity {
-
+// The menu activity handles the start menu with buttons to other activities and the quit option. This is the starting activity.
     Button galleryButton;
     Button helpButton;
     Button quitButton;
@@ -27,7 +27,7 @@ public class Menu extends AppCompatActivity {
 
             }
         });
-
+        // make help button
         helpButton = (Button) findViewById(R.id.button_help);
         helpButton.setOnClickListener(new View.OnClickListener() {
 
@@ -37,7 +37,7 @@ public class Menu extends AppCompatActivity {
 
             }
         });
-
+        //make quit button
         quitButton = (Button) findViewById(R.id.button_quit);
         quitButton.setOnClickListener(new View.OnClickListener() {
 
@@ -49,7 +49,7 @@ public class Menu extends AppCompatActivity {
             }
         });
 
-
+        // make preview button
         previewButton = (Button) findViewById(R.id.button_preview);
         previewButton.setOnClickListener(new View.OnClickListener() {
 

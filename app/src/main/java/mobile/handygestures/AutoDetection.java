@@ -27,7 +27,7 @@ public class AutoDetection implements Runnable {
     private long startTime;
 
     private List<String> labels, prevLabels;
-    private List<Float> probs, prevProbs;
+    private List<Float> probs, prevProbs; //previous labels
 
     private Recognition recognition;
     private Mat img;
@@ -42,6 +42,7 @@ public class AutoDetection implements Runnable {
 
     public AutoDetection(Preview prv)
     {
+        // Gets references to objects from Preview
         preview = prv;
 
         recognition = prv.recognition;
@@ -59,18 +60,22 @@ public class AutoDetection implements Runnable {
     }
 
     public void begin() {
+        // Starts the thread
         if (detector != null) {
             detector.start();
         }
     }
 
     public void stop() {
+        // Stops the thread
         if (detector != null) {
             detector.interrupt();
         }
     }
 
     private int oneSign(int num, final ImageView imgv) {
+        // Handles detection of one sign, by running the detection twice (probing and verification) and comparing the results.
+        // It uses the detect method to find frames with potential signs and compareTo to verify that sign is stable. Also sets the interface objects of the detected frame.
 
         while (true) {
             if (num == 2 && System.currentTimeMillis() - startTime > 5000) return -1;
@@ -110,6 +115,8 @@ public class AutoDetection implements Runnable {
 
     @Override
     public void run() {
+        // Runs the detection of the two signs and executes the commands (using Recognition),
+        // handles timeout for second sign
 
         while (true) {
             txtv = textView1;
@@ -137,6 +144,8 @@ public class AutoDetection implements Runnable {
 
 
     private void resetInterface() {
+        // Resets the interface objects
+
         handler.post(new Runnable() {
             public void run() {
                 imageView.setImageResource(R.drawable.logo);
@@ -151,6 +160,7 @@ public class AutoDetection implements Runnable {
 
     private void sleep(int time)
     {
+        // Sleeps the thread for some time
         try {
             Thread.sleep(time);
 
@@ -161,6 +171,7 @@ public class AutoDetection implements Runnable {
 
     private boolean detect()
     {
+        // Checks if the highest confidence is above a threshold (hand in view)
         if (probs == null || probs.size() <= 0) return false;
         //Log.e("my", "Best prob " + Float.toString(probs.get(probs.size() -1)));
         if(probs.get(probs.size() -1) > 0.6) return true;
@@ -169,6 +180,7 @@ public class AutoDetection implements Runnable {
 
 
     private int classify() {
+        // Classifes the image and updates the labels
         int prediction = -1;
         if (img !=null && img.cols() > 0)
         {
@@ -188,6 +200,8 @@ public class AutoDetection implements Runnable {
 
     private int compareLabels()
     {
+        // Returns a (heuristic) comparison value of two sets of predictions,
+        // higher usually means less similar frames, use for verification of sign
         float sum = 0;
 
         final int size = prevLabels.size();
@@ -203,6 +217,7 @@ public class AutoDetection implements Runnable {
 
     private Bitmap getBitmapFromMat()
     {
+        // Returns a bitmap from Mat
         Mat tmpImg = img;
         Core.rotate(tmpImg, tmpImg, Core.ROTATE_90_CLOCKWISE); //ROTATE_180 or ROTATE_90_
         Bitmap bmp = null;
@@ -219,6 +234,8 @@ public class AutoDetection implements Runnable {
 
     private void updateSortedLabels()
     {
+        // Updates the sorted array of labels with probabilities (from the latest prediction of ImageClassifer)
+        // and splits them into labels and probabilities arrays
         PriorityQueue<Map.Entry<String, Float>> sortedLabels = recognition.getClassifier().getLabelsList();
 
         if (sortedLabels == null) return;
